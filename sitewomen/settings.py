@@ -26,6 +26,7 @@ SECRET_KEY = 'django-insecure-0+&)$z&!u2kd0tpbd864$1h$r)p2^%pjzgm^+kg2p@lx))1vi8
 DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1']
+INTERNAL_IPS = ['127.0.0.1']
 
 
 # Application definition
@@ -37,7 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_extensions',
     'women.apps.WomenConfig',
+    "debug_toolbar",
 ]
 
 MIDDLEWARE = [
@@ -48,6 +51,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = 'sitewomen.urls'
@@ -106,7 +110,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = ('uk')
 
 TIME_ZONE = 'UTC'
 
