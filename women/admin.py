@@ -20,7 +20,7 @@ class MarriedFilter(admin.SimpleListFilter):
 
 @admin.register(Women)
 class WomenAdmin(admin.ModelAdmin):
-    fields = #поля якы выдображаються в формы для редагуванння
+    fields = ['title', 'contant', 'slug'] #поля які выдображаються в формы для редагуванння
     list_display = ('title', 'time_create', 'is_published', 'cat', 'brief_info') #відображення в адммін панелі
     list_display_links = ('title', ) #клікабельні поля в адмінке
     ordering = ['time_create', 'title'] #сортування в адмінке
