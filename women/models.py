@@ -1,5 +1,17 @@
 from django.db import models
+from django.template.defaultfilters import slugify
 from django.urls import reverse
+
+
+def translit_to_eng(s: str) -> str:
+    d = {'а': 'a', 'б': 'b', 'в': 'v', 'г': 'h', 'ґ': 'g', 'д': 'd',
+        'е': 'e', 'є': 'ye', 'ж': 'zh', 'з': 'z', 'и': 'y', 'і': 'i',
+        'ї': 'yi', 'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n',
+        'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u',
+        'ф': 'f', 'х': 'kh', 'ц': 'ts', 'ч': 'ch', 'ш': 'sh', 'щ': 'shch',
+        'ь': '', 'ю': 'yu', 'я': 'ya', 'ʼ': '', '’': '', '\'': ''}
+
+    return "".join(map(lambda x: d[x] if d.get(x, False) else x, s.lower()))
 
 class PublishedManager(models.Manager):
     def get_queryset(self):
@@ -38,6 +50,10 @@ class Women(models.Model):
 
     def get_absolute_url(self):
         return reverse('post', kwargs={'post_slug': self.slug})
+
+    # def save(self, *args, **kwargs): #автоматично генеруэ слаг
+    #     self.slug = slugify(translit_to_eng(self.title))
+    #     super().save(*args, **kwargs)
 
 class Category(models.Model):
     name = models.CharField(max_length=100, db_index=True, verbose_name='Категорія')
