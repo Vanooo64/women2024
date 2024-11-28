@@ -20,9 +20,9 @@ class MarriedFilter(admin.SimpleListFilter):
 
 @admin.register(Women)
 class WomenAdmin(admin.ModelAdmin):
-    fields = ['title', 'content', 'slug', 'cat', 'husband', 'tags'] #поля які выдображаються в формі для редагуванння записів
+    fields = ['title', 'content', 'slug', 'cat', 'husband', 'tags'] #поля які відображаються в формі для редагуванння записів
     # exclude = ['tags', 'is_published'] #виключае обранны поля з формі для редагуванння записів
-    # readonly_fields = ['slug'] #поля будуть выдображатись в формы для рдагування, але редагувати їх неможна
+    # readonly_fields = ['slug'] #поля будуть відображатись в формі для рдагування, але редагувати їх неможна
     prepopulated_fields = {'slug': ("title", )} # автоматично формуэ слаг на основі заголовку
     filter_horizontal = ['tags'] #змінює вигляд форми редагуванння записів
     list_display = ('title', 'time_create', 'is_published', 'cat', 'brief_info') #відображення в адммін панелі

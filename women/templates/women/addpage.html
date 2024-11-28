@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+ 
+{% block content %}
+<h1>{{title}}</h1>
+<form action="" method="POST">
+    {% csrf_token %}
+    <p><label for="id_1">Текст: </label><input type="text" id="id_1" name="filed_text"></p>
+    <p><label for="id_2">Відмітка: <input type="checkbox" id="id_2" name="filed_check"></p>
+    <p><label for="id_3">Число: <input type="number" id="id_3" name="filed_num"></p>
+    <p><label for="id_4">Пароль: <input type="password" id="id_4" name="filed_psw"></p>
+    <p><button type="submit">Відправити</button></p>
+
+</form>
+<p>Вміст сторінки</p>
+{% endblock %}
