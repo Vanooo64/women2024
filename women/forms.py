@@ -17,7 +17,7 @@ class UkraineValidator:
     def __call__(self, value, *args, **kwargs):
         if not (set(value) <= set(self.ALLOWED_CHARS)):
             raise ValidationError(self.message, code=self.code)
-
+#
 
 class AddPostForm(forms.Form): # створюється при багаторазовій перевірці
     title = forms.CharField(max_length=255, min_length=5,
