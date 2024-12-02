@@ -9,3 +9,4 @@ class AddPostForm(forms.Form):
     cat = forms.ModelChoiceField(queryset=Category.objects.all(), empty_label='Категорія не обрана', label='Категорії')
     husband = forms.ModelChoiceField(queryset=Husband.objects.all(), required=False, empty_label='Немає чоловіка', label='Чоловік')
 
+#
