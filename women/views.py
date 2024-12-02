@@ -56,8 +56,6 @@ def addpage(request):
     else:
         form = AddPostForm()
 
-
-    form = AddPostForm()
     data = {
         'menu': menu,
         'title': 'Додавання статі',
