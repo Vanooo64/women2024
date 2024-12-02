@@ -4,10 +4,11 @@ from django.core.validators import MinLengthValidator, MaxLengthValidator
 from django.utils.deconstruct import deconstructible
 
 
-from .models import Category, Husband
+from .models import Category, Husband, Women
+
 
 @deconstructible
-class UkraineValidator:
+class UkraineValidator: # створюється при багаторазовій перевірці
     ALLOWED_CHARS = 'АБВГҐДЕЄЖЗИІЇЙКЛМНОПРСТУФХЦЧШЩЬЮЯабвгґдеєжзииіїйклмнопрстуфхцчшщьюя0123456789- '
     code = 'ukraine'
 
@@ -17,33 +18,23 @@ class UkraineValidator:
     def __call__(self, value, *args, **kwargs):
         if not (set(value) <= set(self.ALLOWED_CHARS)):
             raise ValidationError(self.message, code=self.code)
-#
 
-class AddPostForm(forms.Form): # створюється при багаторазовій перевірці
-    title = forms.CharField(max_length=255, min_length=5,
-                            label='Заголовок',
-                            widget=forms.TextInput(attrs={'class': 'form-input'}),
-                            validators=[
-                                UkraineValidator(),
-                            ],
-                            error_messages={
-                                'min_length': 'Дуже короткий заголовок',
-                                'required': 'Без заголовку ніяк!!!',
-                            })
-    slug = forms.SlugField(max_length=255, label='URL',
-                           validators=[
-                               MinLengthValidator(5, message='Ведіть мінімум 5 символів'),
-                               MaxLengthValidator(100, message='Максимум 100 символів'),
-                           ])
-    content = forms.CharField(widget=forms.Textarea(attrs={'cols': 50, 'rows': 5}), required=False, label='Контент')
-    is_published = forms.BooleanField(required=False, initial=True, label='Статус')
+class AddPostForm(forms.ModelForm):
     cat = forms.ModelChoiceField(queryset=Category.objects.all(), empty_label='Категорія не обрана', label='Категорії')
     husband = forms.ModelChoiceField(queryset=Husband.objects.all(), required=False, empty_label='Немає чоловіка', label='Чоловік')
 
-    # def clean_title(self):
-    #     title = self.cleaned_data['title']
-    #     ALLOWED_CHARS = 'АБВГҐДЕЄЖЗИІЇЙКЛМНОПРСТУФХЦЧШЩЬЮЯабвгґдеєжзииіїйклмнопрстуфхцчшщьюя0123456789- '
-    #
-    #     if not (set(title) <= set(ALLOWED_CHARS)):
-    #         raise ValidationError('Повинен містити тільки українскі символи, дефіз і пробіл.')
+    class Meta:
+        model = Women
+        fields = ['title', 'slug', 'content', 'is_published', 'cat', 'husband', 'tags']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-input'}),
+            'content': forms.Textarea(attrs={'cols': 50, 'rows': 5}),
+        }
+        labels = {'slug': 'URL'}
 
+    def clean_title(self):
+        title = self.cleaned_data['title']
+        if len(title) > 50:
+            raise ValidationError('Довжинна перевищуе 50 символів')
+
+        return title
