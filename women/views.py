@@ -4,6 +4,7 @@ from django.template.defaultfilters import slugify
 from django.urls import reverse
 from django.template.loader import render_to_string
 
+from .forms import AddPostForm
 from .models import Women, Category, TagPost
 
 menu = [{'title': "Про сайт", 'url_name': 'about'},
@@ -43,7 +44,26 @@ def show_post(request, post_slug):
 
 
 def addpage(request):
-    return render(request, 'women/addpage.html', {'menu': menu, 'title': 'Додавання статі'})
+    if request.method == 'POST':
+        form = AddPostForm(request.POST)
+        if form.is_valid():
+            # print(form.cleaned_data)
+            try:
+                Women.objects.create(**form.cleaned_data) #додавання посту в БД
+                return redirect('home')
+            except:
+                form.add_error(None, "Поилка додавання статі")
+    else:
+        form = AddPostForm()
+
+
+    form = AddPostForm()
+    data = {
+        'menu': menu,
+        'title': 'Додавання статі',
+        'form': form
+    }
+    return render(request, 'women/addpage.html', data)
 
 
 def contac(request):
