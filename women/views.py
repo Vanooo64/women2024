@@ -4,7 +4,7 @@ from django.template.defaultfilters import slugify
 from django.urls import reverse
 from django.template.loader import render_to_string
 
-from .forms import AddPostForm
+from .forms import AddPostForm, UploadFileForm
 from .models import Women, Category, TagPost
 
 menu = [{'title': "Про сайт", 'url_name': 'about'},
@@ -27,8 +27,22 @@ def index(request):
     return render(request, 'women/index.html', context=date)
 
 
+def handle_uploaded_file(f):
+    with open(f"uploads/{f.name}", "wb+") as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
+
+
 def about(request):
-    return render(request, 'women/about.html', {'title': 'Про сайт',  'menu': menu})
+    if request.method == 'POST':
+        # handle_uploaded_file(request.FILES['file_upload'])
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            handle_uploaded_file(form.cleaned_data['file'])
+    else:
+        form = UploadFileForm()
+    return render(request, 'women/about.html',
+                  {'title': 'Про сайт',  'menu': menu, 'form': form})
 
 
 def show_post(request, post_slug):
