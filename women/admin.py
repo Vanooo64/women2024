@@ -1,4 +1,6 @@
 from django.contrib import admin, messages
+from django.utils.safestring import mark_safe
+
 from .models import Women, Category
 
 class MarriedFilter(admin.SimpleListFilter):
@@ -20,12 +22,12 @@ class MarriedFilter(admin.SimpleListFilter):
 
 @admin.register(Women)
 class WomenAdmin(admin.ModelAdmin):
-    fields = ['title', 'content', 'slug', 'cat', 'husband', 'tags'] #поля які відображаються в формі для редагуванння записів
+    fields = ['title', 'content', 'slug', 'photo', 'post_photo', 'cat', 'husband', 'tags'] #поля які відображаються в формі для редагуванння записів
     # exclude = ['tags', 'is_published'] #виключае обранны поля з формі для редагуванння записів
-    # readonly_fields = ['slug'] #поля будуть відображатись в формі для рдагування, але редагувати їх неможна
+    readonly_fields = ['post_photo'] #поля будуть відображатись в формі для рдагування, але редагувати їх неможна
     prepopulated_fields = {'slug': ("title", )} # автоматично формуэ слаг на основі заголовку
-    filter_horizontal = ['tags'] #змінює вигляд форми редагуванння записів
-    list_display = ('title', 'time_create', 'is_published', 'cat', 'brief_info') #відображення в адммін панелі
+    # filter_horizontal = ['tags'] #змінює вигляд форми редагуванння записів
+    list_display = ('title', 'post_photo', 'time_create', 'is_published', 'cat') #відображення в адммін панелі
     list_display_links = ('title', ) #клікабельні поля в адмінке
     ordering = ['time_create', 'title'] #сортування в адмінке
     list_editable = ('is_published',  ) # поля які можна редагувати
@@ -33,10 +35,17 @@ class WomenAdmin(admin.ModelAdmin):
     actions = ['set_published', 'set_draft'] #список додавання дій
     search_fields = ['title', 'cat__name'] # панель пошуку
     list_filter = [MarriedFilter, 'cat__name', 'is_published'] # панель з фільтами
+    save_on_top = True #панель для зберігання запису буде відображуватись з верху форми редагування
 
-    @admin.display(description='Короткий опис', ordering='content')
-    def brief_info(self, women: Women): #визначає кількість символів в описі
-        return f"Опис {len(women.content)} символів"
+    # @admin.display(description='Короткий опис', ordering='content')
+    # def brief_info(self, women: Women): #визначає кількість символів в описі
+    #     return f"Опис {len(women.content)} символів"
+
+    @admin.display(description='Зображення', ordering='content')
+    def post_photo(self, women: Women): #функція повертає HTML фрагмент з фото
+        if women.photo:
+            return mark_safe(f"<img src='{women.photo.url}' width=50") #функція mark_safe того щоб HTML теги нне екранувалися
+        return 'Відсутне'
 
     @admin.action(description='Опублікувати обранні записи')
     def set_published(self, request, queryset):

@@ -19,13 +19,14 @@ class UkraineValidator: # створюється при багаторазові
         if not (set(value) <= set(self.ALLOWED_CHARS)):
             raise ValidationError(self.message, code=self.code)
 
+
 class AddPostForm(forms.ModelForm):
     cat = forms.ModelChoiceField(queryset=Category.objects.all(), empty_label='Категорія не обрана', label='Категорії')
     husband = forms.ModelChoiceField(queryset=Husband.objects.all(), required=False, empty_label='Немає чоловіка', label='Чоловік')
 
     class Meta:
         model = Women
-        fields = ['title', 'slug', 'content', 'is_published', 'cat', 'husband', 'tags']
+        fields = ['title', 'slug', 'content', 'photo', 'is_published', 'cat', 'husband', 'tags']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-input'}),
             'content': forms.Textarea(attrs={'cols': 50, 'rows': 5}),

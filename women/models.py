@@ -29,6 +29,8 @@ class Women(models.Model):
                                MinLengthValidator(5, message='Ведіть мінімум 5 символів'),
                                MaxLengthValidator(100, message='Максимум 100 символів'),
                            ])
+    photo = models.ImageField(upload_to='photos/%Y/%m/%d/', default=None,
+                              blank=True, null=True, verbose_name='Фото')
     content = models.TextField(blank=True, verbose_name='Текст статі')
     time_create = models.DateTimeField(auto_now_add=True, verbose_name='Час створення')
     time_update = models.DateTimeField(auto_now=True, verbose_name='Час змінин')
@@ -75,6 +77,7 @@ class Category(models.Model):
     def get_absolute_url(self):
         return reverse('category', kwargs={'cat_slug': self.slug})
 
+
 class TagPost(models.Model):
     tag = models.CharField(max_length=100, db_index=True)
     slug = models.SlugField(max_length=255, unique=True, db_index=True)
@@ -85,6 +88,7 @@ class TagPost(models.Model):
     def get_absolute_url(self):
         return reverse('tag', kwargs={'tag_slug': self.slug})
 
+
 class Husband(models.Model):
     name = models.CharField(max_length=100)
     age = models.IntegerField(null=True)
@@ -94,3 +98,5 @@ class Husband(models.Model):
         return self.name
      
 
+class UploadFiles(models.Model):
+    file = models.FileField(upload_to='uploads_model')
