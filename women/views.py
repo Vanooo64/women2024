@@ -3,6 +3,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.template.defaultfilters import slugify
 from django.urls import reverse
 from django.template.loader import render_to_string
+from django.views import View
+from django.views.generic import TemplateView
 
 from .forms import AddPostForm, UploadFileForm
 from .models import Women, Category, TagPost, UploadFiles
@@ -16,15 +18,31 @@ menu = [{'title': "Про сайт", 'url_name': 'about'},
 
 def index(request):
     posts = Women.published.all().select_related('cat')
-
     date = {
         'title': 'Головна сторінка',
         'menu': menu,
-        'float': 29.32,
         'posts': posts,
         'cat_selected': 0,
     }
     return render(request, 'women/index.html', context=date)
+
+
+class WomenHome(TemplateView):
+    template_name = 'women/index.html'
+    extra_context = {
+        'title': 'Головна сторінка',
+        'menu': menu,
+        'posts': Women.published.all().select_related('cat'),
+        'cat_selected': 0,
+    }
+
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     context['title'] = 'Головна сторіка'
+    #     context['menu'] = menu
+    #     context['post'] = Women.published.all().select_related('cat')
+    #     context['cat_selected'] = int(self.request.GET.get('cat_id', 0))
+    #     return context
 
 
 # def handle_uploaded_file(f):
@@ -78,6 +96,29 @@ def addpage(request):
         'form': form
     }
     return render(request, 'women/addpage.html', data)
+
+
+class AddPage(View):
+    def get(self, request):
+        form = AddPostForm()
+        data = {
+            'menu': menu,
+            'title': 'Додавання статі',
+            'form': form
+        }
+        return render(request, 'women/addpage.html', data)
+
+    def post(self, request):
+        form = AddPostForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('home')
+        data = {
+            'menu': menu,
+            'title': 'Додавання статі',
+            'form': form
+        }
+        return render(request, 'women/addpage.html', data)
 
 
 def contact(request):
