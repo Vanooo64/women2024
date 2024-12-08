@@ -4,7 +4,7 @@ from django.template.defaultfilters import slugify
 from django.urls import reverse, reverse_lazy
 from django.template.loader import render_to_string
 from django.views import View
-from django.views.generic import TemplateView, ListView, DetailView, FormView
+from django.views.generic import TemplateView, ListView, DetailView, FormView, CreateView, UpdateView
 
 from .forms import AddPostForm, UploadFileForm
 from .models import Women, Category, TagPost, UploadFiles
@@ -118,8 +118,21 @@ class ShowPost(DetailView):
 #     }
 #     return render(request, 'women/addpage.html', data)
 
-class AddPage(FormView):
+class AddPage(CreateView):
     form_class = AddPostForm
+    # model = Women
+    # fields = ['title', 'slug', 'content', 'is_published', 'cat']
+    template_name = 'women/addpage.html'
+    # success_url = reverse_lazy('home') #функція будуэ маршрут тільки в той момент, коли до даної сторінки звертаються
+    extra_context = {
+        'menu': menu,
+        'title': 'Додавання статі'
+    }
+
+
+class UpdatePage(UpdateView):
+    model = Women
+    fields = ['title',  'content', 'photo', 'is_published', 'cat']
     template_name = 'women/addpage.html'
     success_url = reverse_lazy('home') #функція будуэ маршрут тільки в той момент, коли до даної сторінки звертаються
     extra_context = {
@@ -127,9 +140,7 @@ class AddPage(FormView):
         'title': 'Додавання статі'
     }
 
-    def form_valid(self, form):
-        form.save()
-        return super().form_valid(form)
+
 
 # class AddPage(View):
 #     def get(self, request):
