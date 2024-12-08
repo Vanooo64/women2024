@@ -4,7 +4,7 @@ from django.template.defaultfilters import slugify
 from django.urls import reverse
 from django.template.loader import render_to_string
 from django.views import View
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, ListView, DetailView
 
 from .forms import AddPostForm, UploadFileForm
 from .models import Women, Category, TagPost, UploadFiles
@@ -16,25 +16,30 @@ menu = [{'title': "Про сайт", 'url_name': 'about'},
 ]
 
 
-def index(request):
-    posts = Women.published.all().select_related('cat')
-    date = {
-        'title': 'Головна сторінка',
-        'menu': menu,
-        'posts': posts,
-        'cat_selected': 0,
-    }
-    return render(request, 'women/index.html', context=date)
+# def index(request):
+#     posts = Women.published.all().select_related('cat')
+#     date = {
+#         'title': 'Головна сторінка',
+#         'menu': menu,
+#         'posts': posts,
+#         'cat_selected': 0,
+#     }
+#     return render(request, 'women/index.html', context=date)
 
 
-class WomenHome(TemplateView):
+class WomenHome(ListView):
+    # model = Women
     template_name = 'women/index.html'
+    context_object_name = 'posts'
     extra_context = {
         'title': 'Головна сторінка',
         'menu': menu,
-        'posts': Women.published.all().select_related('cat'),
         'cat_selected': 0,
     }
+
+    def get_queryset(self):
+        return Women.published.all().select_related('cat')
+
 
     # def get_context_data(self, **kwargs):
     #     context = super().get_context_data(**kwargs)
@@ -74,28 +79,33 @@ def show_post(request, post_slug):
     }
     return render(request, 'women/post.html', data)
 
+class ShowPost(DetailView):
+    model = Women
+    template_name = 'women/post.html'
 
-def addpage(request):
-    if request.method == 'POST':
-        form = AddPostForm(request.POST, request.FILES)
-        if form.is_valid():
-            # print(form.cleaned_data)
-            # try:
-            #     Women.objects.create(**form.cleaned_data) #додавання посту в БД
-            #     return redirect('home')
-            # except:
-            #     form.add_error(None, "Поилка додавання статі")
-            form.save()
-            return redirect('home')
-    else:
-        form = AddPostForm()
 
-    data = {
-        'menu': menu,
-        'title': 'Додавання статі',
-        'form': form
-    }
-    return render(request, 'women/addpage.html', data)
+
+# def addpage(request):
+#     if request.method == 'POST':
+#         form = AddPostForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             # print(form.cleaned_data)
+#             # try:
+#             #     Women.objects.create(**form.cleaned_data) #додавання посту в БД
+#             #     return redirect('home')
+#             # except:
+#             #     form.add_error(None, "Поилка додавання статі")
+#             form.save()
+#             return redirect('home')
+#     else:
+#         form = AddPostForm()
+#
+#     data = {
+#         'menu': menu,
+#         'title': 'Додавання статі',
+#         'form': form
+#     }
+#     return render(request, 'women/addpage.html', data)
 
 
 class AddPage(View):
@@ -133,30 +143,63 @@ def show_category(request, cat_id):
     return index(request)
 
 
-def show_category(request, cat_slug):
-    category = get_object_or_404(Category, slug=cat_slug)
-    posts = Women.published.filter(cat_id=category.pk).select_related('cat')
-    date = {
-        'title': f'Рубрика: {category.name}',
-        'menu': menu,
-        'posts': posts,
-        'cat_selected': category.pk,
-    }
-    return render(request, 'women/index.html', context=date)
+# def show_category(request, cat_slug):
+#     category = get_object_or_404(Category, slug=cat_slug)
+#     posts = Women.published.filter(cat_id=category.pk).select_related('cat')
+#     date = {
+#         'title': f'Рубрика: {category.name}',
+#         'menu': menu,
+#         'posts': posts,
+#         'cat_selected': category.pk,
+#     }
+#     return render(request, 'women/index.html', context=date)
+
+
+class WomenCategory(ListView):
+    template_name = 'women/index.html'
+    context_object_name = 'posts'
+    allow_empty = False
+
+    def get_queryset(self):
+        return Women.published.filter(cat__slug=self.kwargs['cat_slug']).select_related('cat')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        cat = context['posts'][0].cat
+        context['title'] = 'Категорія - ' + cat.name
+        context['menu'] = menu
+        context['cat_selected'] = cat.pk
+        return context
 
 
 def page_not_found(request, exception):
     return HttpResponseNotFound("<h1>Сторінка не знайдена</h1>")
 
 
-def show_tag_postlist(request, tag_slug):
-    tag = get_object_or_404(TagPost, slug=tag_slug)
-    posts = tag.tags.filter(is_published=Women.Status.PUBLISHED).select_related('cat')
-    date = {
-        'title': f'Тег: {tag.tag}',
-        'menu': menu,
-        'posts': posts,
-        'cat_selected': None,
-    }
+# def show_tag_postlist(request, tag_slug):
+#     tag = get_object_or_404(TagPost, slug=tag_slug)
+#     posts = tag.tags.filter(is_published=Women.Status.PUBLISHED).select_related('cat')
+#     date = {
+#         'title': f'Тег: {tag.tag}',
+#         'menu': menu,
+#         'posts': posts,
+#         'cat_selected': None,
+#     }
+#
+#     return render(request, 'women/index.html', context=date)
 
-    return render(request, 'women/index.html', context=date)
+class TagPostlist(ListView):
+    template_name = 'women/index.html'
+    context_object_name = 'posts'
+    allow_empty = False
+
+    def get_queryset(self):
+        self.tag = get_object_or_404(TagPost, slug=self.kwargs['tag_slug'])
+        return self.tag.tags.filter(is_published=1).select_related('cat')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = f'Пости з тегом - {self.tag.tag}'
+        context['menu'] = menu
+        context['cat_selected'] = 0
+        return context
