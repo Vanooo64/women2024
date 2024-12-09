@@ -6,6 +6,7 @@ menu = [{'title': "Про сайт", 'url_name': 'about'},
 
 
 class DataMixin:
+    paginate_by = 3  # відображеня кількості записів на сторінці
     title_page = None
     cat_selected = None
     extra_context = {}
