@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.core.validators import MinLengthValidator, MaxLengthValidator
 from django.db import models
 from django.template.defaultfilters import slugify
@@ -38,7 +39,9 @@ class Women(models.Model):
                                        default=Status.DRAFT, verbose_name="Статус")
     cat = models.ForeignKey('Category',  on_delete=models.PROTECT, related_name='posts', verbose_name='Категорії')
     tags = models.ManyToManyField('TagPost', blank=True, related_name='tags', verbose_name='Теги')
-    husband = models.OneToOneField('Husband', on_delete=models.SET_NULL, null=True, blank=True, related_name='wuman', verbose_name='Чоловік')
+    husband = models.OneToOneField('Husband', on_delete=models.SET_NULL,
+                                   null=True, blank=True, related_name='wuman', verbose_name='Чоловік')
+    author = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL, related_name='posts', null=True, default=None) #зв`язує пост з конкретнним автором
 
     objects = models.Manager()
     published = PublishedManager()

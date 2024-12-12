@@ -140,3 +140,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_REDIRECT_URL = 'home' #перенаправляє користувача на необхідну сторінку 'home' у разі успішної авторизації користувача
 LOGOUT_REDIRECT_URL = 'home' #перенаправляє користувача на необхідну сторінку 'home' у разі виходу з акаунту
+LOGIN_URL = 'users:login' #перенаправляэ неавторизованого користувача на необхідну сторінку

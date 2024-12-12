@@ -1,3 +1,5 @@
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpResponseNotFound, Http404,  HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
@@ -23,6 +25,7 @@ class WomenHome(DataMixin, ListView):
         return Women.published.all().select_related('cat')
 
 
+@login_required # декоратор робить сторінку доступною тільки для авторизованих користувачів
 def about(request):
     contact_list = Women.published.all()
     paginator = Paginator(contact_list, 3)
@@ -48,11 +51,16 @@ class ShowPost(DataMixin, DetailView):
         return get_object_or_404(Women.published, slug=self.kwargs[self.slug_url_kwarg])
 
 
-class AddPage(DataMixin, CreateView):
+class AddPage(LoginRequiredMixin, DataMixin, CreateView): #LoginRequiredMixin - закриває сторінку для неавторизованнинх користувачів
     form_class = AddPostForm
     template_name = 'women/addpage.html'
     title_page = 'Додавання статі'
+    login_url = '/admin/' #доступний з LoginRequiredMixin, перенаправляє неаторизованого користувача на необхідну сторінку
 
+    def form_valid(self, form):
+        w = form.save(commit=False) #створення нового обєекту для БД але запис не відбувається
+        w.author = self.request.user #визначається автор
+        return super().form_valid(form) #зберігається в БД
 
 class UpdatePage(DataMixin, UpdateView):
     model = Women
