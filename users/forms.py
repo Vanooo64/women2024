@@ -5,9 +5,9 @@ from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 
 class LoginUserForm(AuthenticationForm):
     username = forms.CharField(label='Логін',
-                    widget=forms.TextInput(attrs={'class': 'form-input'}))
+                    widget=forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Введіть свій логін або e-mail' }))
     password = forms.CharField(label='Пароль',
-                    widget=forms.PasswordInput(attrs={'class': 'form-input'}))
+                    widget=forms.PasswordInput(attrs={'class': 'form-input', 'placeholder': 'Введіть свій пароль'}))
 
     class Meta:
         model = get_user_model()
@@ -53,3 +53,19 @@ class RegisterUserForm(UserCreationForm):
             raise forms.ValidationError('Такий E-mail вже існує')  # Якщо запис знайдено, піднімаємо помилку.
         return email  # Повертаємо очищене значення email, якщо воно унікальне.
 
+
+class ProfileUserForm(forms.ModelForm):
+    username = forms.CharField(disabled=True, label='Логін', widget=forms.TextInput(attrs={'class': 'form-input'}))
+    email = forms.CharField(disabled=True, label='E-mail', widget=forms.TextInput(attrs={'class': 'form-input'}))
+
+    class Meta:
+        model = get_user_model()
+        fields = ['username', 'email', 'first_name', 'last_name']
+        labels = {
+            'first_name': 'Ім`я',
+            'last_name': 'Фамілія',
+        }
+        widgets = {
+            'first_name': forms.TextInput(attrs={'class': 'form-input'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-input'}),
+        }
