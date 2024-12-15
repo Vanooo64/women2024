@@ -7,6 +7,7 @@ from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, UpdateView
 
+from sitewomen import settings
 from users.forms import LoginUserForm, RegisterUserForm, ProfileUserForm, UserPasswordChangeForm
 
 
@@ -31,7 +32,10 @@ class ProfileUser(LoginRequiredMixin, UpdateView):
     model = get_user_model()
     form_class = ProfileUserForm
     template_name = 'users/profile.html'
-    extra_context = {"title": "Профайл Користувача"}
+    extra_context = {
+        "title": "Профайл Користувача",
+        'default_image': settings.DEFAULT_USER_IMAGE,
+    }
 
     def get_seccess_url(self):
         """
